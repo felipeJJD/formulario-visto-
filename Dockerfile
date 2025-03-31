@@ -5,8 +5,8 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copiar arquivos do projeto
-COPY formulario-visto/package*.json ./
-COPY formulario-visto/ ./
+COPY package*.json ./
+COPY . .
 
 # Instalar dependências
 RUN npm install
