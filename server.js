@@ -14,6 +14,15 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Middleware para garantir que o servidor sempre responda
+app.use((req, res, next) => {
+  res.setTimeout(5000, () => {
+    res.status(408).json({ error: 'Request timeout' });
+  });
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Configuração do banco de dados
@@ -22,17 +31,26 @@ const pool = new Pool({
   port: process.env.DB_PORT,
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD
+  password: process.env.DB_PASSWORD,
+  connectionTimeoutMillis: 5000,
+  query_timeout: 5000
 });
 
 // Rota de healthcheck
 app.get('/', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'Servidor está funcionando!' });
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'Servidor está funcionando!',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Rota de healthcheck específica
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.status(200).json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Função para formatar data no formato YYYY-MM-DD
@@ -141,8 +159,18 @@ app.post('/api/submit-form', async (req, res) => {
   }
 });
 
+// Tratamento de erros global
+app.use((err, req, res, next) => {
+  console.error('Erro não tratado:', err);
+  res.status(500).json({
+    status: 'error',
+    message: 'Erro interno do servidor',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Iniciar o servidor
-app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Servidor rodando na porta ${PORT}`);
   
   // Tentar conectar ao banco após o servidor estar rodando
@@ -153,5 +181,20 @@ app.listen(PORT, () => {
       console.log('Conexão com o banco estabelecida com sucesso!');
       release();
     }
+  });
+});
+
+// Tratamento de erros do servidor
+server.on('error', (err) => {
+  console.error('Erro no servidor:', err);
+});
+
+// Garantir que o servidor seja encerrado adequadamente
+process.on('SIGTERM', () => {
+  console.log('SIGTERM recebido. Encerrando servidor...');
+  server.close(() => {
+    console.log('Servidor encerrado');
+    pool.end();
+    process.exit(0);
   });
 }); 
