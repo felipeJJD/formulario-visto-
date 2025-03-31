@@ -1,0 +1,51 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Estilização de inputs */
+.MuiTextField-root {
+  margin-bottom: 8px !important;
+}
+
+.MuiTextField-root input:focus, 
+.MuiTextField-root textarea:focus {
+  border-color: #FF6B00 !important;
+}
+
+.MuiTextField-root label.Mui-focused {
+  color: #FF6B00 !important;
+}
+
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #FF6B00 !important;
+}
+
+/* Estilos para radio buttons */
+.MuiRadio-root.Mui-checked {
+  color: #FF6B00 !important;
+}
+
+/* Animação de entrada para campos */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.MuiGrid-container > .MuiGrid-item {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.MuiGrid-container > .MuiGrid-item:nth-child(1) { animation-delay: 0.05s; }
+.MuiGrid-container > .MuiGrid-item:nth-child(2) { animation-delay: 0.1s; }
+.MuiGrid-container > .MuiGrid-item:nth-child(3) { animation-delay: 0.15s; }
+.MuiGrid-container > .MuiGrid-item:nth-child(4) { animation-delay: 0.2s; }
+.MuiGrid-container > .MuiGrid-item:nth-child(5) { animation-delay: 0.25s; }
+.MuiGrid-container > .MuiGrid-item:nth-child(6) { animation-delay: 0.3s; }
+.MuiGrid-container > .MuiGrid-item:nth-child(7) { animation-delay: 0.35s; }
+.MuiGrid-container > .MuiGrid-item:nth-child(8) { animation-delay: 0.4s; }
+.MuiGrid-container > .MuiGrid-item:nth-child(9) { animation-delay: 0.45s; }
+.MuiGrid-container > .MuiGrid-item:nth-child(10) { animation-delay: 0.5s; } 
