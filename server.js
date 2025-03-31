@@ -6,6 +6,16 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Log de inicialização
+console.log('Iniciando servidor...');
+console.log('Variáveis de ambiente:', {
+  PORT,
+  DB_HOST: process.env.DB_HOST,
+  DB_PORT: process.env.DB_PORT,
+  DB_NAME: process.env.DB_NAME,
+  NODE_ENV: process.env.NODE_ENV
+});
+
 // Configuração CORS
 app.use(cors({
   origin: '*', // Permite requisições de qualquer origem
@@ -15,9 +25,16 @@ app.use(cors({
 
 app.use(express.json());
 
+// Middleware para logging de requisições
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
 // Middleware para garantir que o servidor sempre responda
 app.use((req, res, next) => {
   res.setTimeout(5000, () => {
+    console.log('Timeout na requisição:', req.url);
     res.status(408).json({ error: 'Request timeout' });
   });
   next();
@@ -38,18 +55,22 @@ const pool = new Pool({
 
 // Rota de healthcheck
 app.get('/', (req, res) => {
+  console.log('Healthcheck recebido');
   res.status(200).json({ 
     status: 'ok', 
     message: 'Servidor está funcionando!',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
   });
 });
 
 // Rota de healthcheck específica
 app.get('/health', (req, res) => {
+  console.log('Healthcheck específico recebido');
   res.status(200).json({ 
     status: 'ok',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
   });
 });
 
@@ -165,29 +186,38 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     status: 'error',
     message: 'Erro interno do servidor',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    error: err.message
   });
 });
+
+// Função para iniciar o servidor
+const startServer = () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Ambiente: ${process.env.NODE_ENV}`);
+    
+    // Tentar conectar ao banco após o servidor estar rodando
+    pool.connect((err, client, release) => {
+      if (err) {
+        console.error('Erro ao conectar ao banco:', err);
+      } else {
+        console.log('Conexão com o banco estabelecida com sucesso!');
+        release();
+      }
+    });
+  });
+
+  // Tratamento de erros do servidor
+  server.on('error', (err) => {
+    console.error('Erro no servidor:', err);
+  });
+
+  return server;
+};
 
 // Iniciar o servidor
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-  
-  // Tentar conectar ao banco após o servidor estar rodando
-  pool.connect((err, client, release) => {
-    if (err) {
-      console.error('Erro ao conectar ao banco:', err);
-    } else {
-      console.log('Conexão com o banco estabelecida com sucesso!');
-      release();
-    }
-  });
-});
-
-// Tratamento de erros do servidor
-server.on('error', (err) => {
-  console.error('Erro no servidor:', err);
-});
+const server = startServer();
 
 // Garantir que o servidor seja encerrado adequadamente
 process.on('SIGTERM', () => {
@@ -197,4 +227,15 @@ process.on('SIGTERM', () => {
     pool.end();
     process.exit(0);
   });
+});
+
+// Tratamento de erros não capturados
+process.on('uncaughtException', (err) => {
+  console.error('Erro não capturado:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Promessa rejeitada não tratada:', reason);
+  process.exit(1);
 }); 

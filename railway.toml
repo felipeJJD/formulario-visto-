@@ -4,10 +4,10 @@ dockerfilePath = "Dockerfile"
 
 [deploy]
 healthcheckPath = "/"
-healthcheckTimeout = 600
+healthcheckTimeout = 300
 restartPolicy = "on-failure"
-maxRetries = 10
-startTimeout = 600
+maxRetries = 5
+startTimeout = 300
 
 [deploy.env]
 NODE_ENV = "production"
