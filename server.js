@@ -180,6 +180,11 @@ app.post('/api/submit-form', async (req, res) => {
   }
 });
 
+// Rota catch-all para servir a aplicação React
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 // Tratamento de erros global
 app.use((err, req, res, next) => {
   console.error('Erro não tratado:', err);
@@ -200,19 +205,19 @@ const startServer = () => {
     // Tentar conectar ao banco após o servidor estar rodando
     pool.connect((err, client, release) => {
       if (err) {
-        console.error('Erro ao conectar ao banco:', err);
-      } else {
-        console.log('Conexão com o banco estabelecida com sucesso!');
-        release();
+        console.error('Erro ao conectar ao banco de dados:', err);
+        return;
       }
+      release();
+      console.log('Conectado ao banco de dados PostgreSQL');
     });
   });
-
-  // Tratamento de erros do servidor
-  server.on('error', (err) => {
-    console.error('Erro no servidor:', err);
+  
+  // Configurar tratamento de finalização do servidor
+  server.on('error', (error) => {
+    console.error('Erro no servidor:', error);
   });
-
+  
   return server;
 };
 
@@ -221,21 +226,23 @@ const server = startServer();
 
 // Garantir que o servidor seja encerrado adequadamente
 process.on('SIGTERM', () => {
-  console.log('SIGTERM recebido. Encerrando servidor...');
+  console.log('SIGTERM recebido, encerrando servidor...');
   server.close(() => {
     console.log('Servidor encerrado');
-    pool.end();
-    process.exit(0);
+    pool.end(() => {
+      console.log('Conexão com banco de dados encerrada');
+      process.exit(0);
+    });
   });
 });
 
-// Tratamento de erros não capturados
-process.on('uncaughtException', (err) => {
-  console.error('Erro não capturado:', err);
-  process.exit(1);
+process.on('SIGINT', () => {
+  console.log('SIGINT recebido, encerrando servidor...');
+  server.close(() => {
+    console.log('Servidor encerrado');
+    pool.end(() => {
+      console.log('Conexão com banco de dados encerrada');
+      process.exit(0);
+    });
+  });
 });
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Promessa rejeitada não tratada:', reason);
-  process.exit(1);
-}); 
