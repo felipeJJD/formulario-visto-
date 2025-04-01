@@ -2,7 +2,7 @@
   "name": "formulario-visto",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -31,5 +31,8 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "vite": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
-} 
+}

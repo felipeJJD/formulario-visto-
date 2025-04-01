@@ -17,17 +17,14 @@ fi
 
 echo -e "${GREEN}Dependências instaladas com sucesso!${NC}"
 
-# Iniciar o servidor em um terminal separado
+# Iniciar o servidor
 echo -e "${BLUE}Iniciando o servidor Node.js...${NC}"
-osascript -e 'tell app "Terminal" to do script "cd \"'$PWD'\" && node server.js"'
+echo -e "${GREEN}Servidor iniciado em http://localhost:3000${NC}"
+echo -e "${BLUE}Pressione Ctrl+C para encerrar o servidor${NC}"
 
-# Verificar se o script foi executado corretamente
-if [ $? -ne 0 ]; then
-  echo -e "${RED}Erro ao iniciar o servidor. Tente manualmente com: node server.js${NC}"
-else
-  echo -e "${GREEN}Servidor iniciado em http://localhost:3000${NC}"
-fi
+# Iniciar o servidor
+node server.js
 
 # Iniciar o cliente de desenvolvimento
 echo -e "${BLUE}Iniciando o servidor de desenvolvimento do React...${NC}"
-npm run dev 
+npm run dev
