@@ -17,6 +17,19 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html')
       }
+    },
+    // Garantir que os caminhos sejam relativos
+    assetsDir: 'assets',
+    cssCodeSplit: true,
+    sourcemap: false,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
     }
-  }
+  },
+  // Configurar base URL relativa
+  base: './'
 });

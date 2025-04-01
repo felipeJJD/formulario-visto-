@@ -1,10 +1,16 @@
-const express = require('express');
-const cors = require('cors');
-const { Pool } = require('pg');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import pg from 'pg';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const { Pool } = pg;
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Obter o diretório atual (substitui __dirname em ESM)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Log de inicialização
 console.log('Iniciando servidor...');
@@ -40,6 +46,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// Servir arquivos estáticos da pasta dist
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Configuração do banco de dados
@@ -54,17 +61,6 @@ const pool = new Pool({
 });
 
 // Rota de healthcheck
-app.get('/', (req, res) => {
-  console.log('Healthcheck recebido');
-  res.status(200).json({ 
-    status: 'ok', 
-    message: 'Servidor está funcionando!',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
-  });
-});
-
-// Rota de healthcheck específica
 app.get('/health', (req, res) => {
   console.log('Healthcheck específico recebido');
   res.status(200).json({ 
