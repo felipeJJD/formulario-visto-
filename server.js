@@ -1,16 +1,10 @@
-import express from 'express';
-import cors from 'cors';
-import pg from 'pg';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const express = require('express');
+const cors = require('cors');
+const { Pool } = require('pg');
+const path = require('path');
 
-const { Pool } = pg;
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// Obter o diretório atual (substitui __dirname em ESM)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Log de inicialização
 console.log('Iniciando servidor...');
@@ -71,7 +65,7 @@ app.get('/health', (req, res) => {
 });
 
 // Função para formatar data no formato YYYY-MM-DD
-const formatarData = (dataString) => {
+function formatarData(dataString) {
   if (!dataString) return null;
   
   // Se já estiver no formato YYYY-MM-DD, retorna a string
@@ -193,7 +187,7 @@ app.use((err, req, res, next) => {
 });
 
 // Função para iniciar o servidor
-const startServer = () => {
+function startServer() {
   const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor rodando na porta ${PORT}`);
     console.log(`Ambiente: ${process.env.NODE_ENV}`);
