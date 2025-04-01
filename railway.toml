@@ -1,8 +1,9 @@
 [build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+builder = "NIXPACKS"
+buildCommand = "npm install && npm run build"
 
 [deploy]
+startCommand = "npm start"
 healthcheckPath = "/"
 healthcheckTimeout = 300
 restartPolicy = "on-failure"
@@ -17,4 +18,4 @@ PORT = "3000"
 nixPkgs = ["nodejs", "npm"]
 
 [phases.install]
-cmds = ["node --version", "npm --version"] 
+cmds = ["node --version", "npm --version"]
